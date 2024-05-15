@@ -8,8 +8,6 @@
 
 <h1>ims-gantt-timeline-calendar</h1>
 
-a react gantt timeline calendar
-
 node 版本 v18.13.0
 
 [Changelog](./CHANGELOG.md) · [Report Bug][issues-url] · [Request Feature][issues-url]
@@ -72,8 +70,6 @@ pnpm i ims-gantt-timeline-calendar -S
 ```
 
 ### 使用
-
-基于该仓库模板可以快速创建一个 npm 包的工程化脚手架。
 
 详情：[CHANGELOG](./CHANGELOG.md)
 
