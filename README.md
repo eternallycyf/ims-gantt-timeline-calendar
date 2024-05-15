@@ -6,9 +6,9 @@
 
 [//]: # '<img width="160" src="https://avatars.githubusercontent.com/u/17870709?v=4">'
 
-<h1>ims-template</h1>
+<h1>ims-gantt-timeline-calendar</h1>
 
-一个开发 npm 项目的模板
+a react gantt timeline calendar
 
 node 版本 v18.13.0
 
@@ -24,12 +24,10 @@ node 版本 v18.13.0
 
 [![ docs by dumi][dumi-url]](https://d.umijs.org/) [![Build With father][father-url]](https://github.com/umijs/father/)
 
-![](https://github.com/othneildrew/Best-README-Template/raw/master/images/screenshot.png)
-
 <!-- gitpod url -->
 
 [gitpod-badge]: https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod
-[gitpod-url]: https://gitpod.io/#https://github.com/ant-design/ims-template
+[gitpod-url]: https://gitpod.io/#https://github.com/ant-design/ims-gantt-timeline-calendar
 
 <!-- umi url -->
 
@@ -38,35 +36,30 @@ node 版本 v18.13.0
 
 <!-- npm url -->
 
-[npm-image]: http://img.shields.io/npm/v/ims-template.svg?style=flat-square&color=deepgreen&label=latest
-[npm-url]: http://npmjs.org/package/ims-template
-[npm-size]: https://img.shields.io/bundlephobia/minzip/ims-template?color=deepgreen&label=gizpped%20size&style=flat-square
-[npm-size-url]: https://packagephobia.com/result?p=ims-template
+[npm-image]: http://img.shields.io/npm/v/ims-gantt-timeline-calendar.svg?style=flat-square&color=deepgreen&label=latest
+[npm-url]: http://npmjs.org/package/ims-gantt-timeline-calendar
+[npm-size]: https://img.shields.io/bundlephobia/minzip/ims-gantt-timeline-calendar?color=deepgreen&label=gizpped%20size&style=flat-square
+[npm-size-url]: https://packagephobia.com/result?p=ims-gantt-timeline-calendar
 
 <!-- coverage -->
 
-[coverage]: https://codecov.io/gh/eternallycyf/ims-template/branch/master/graph/badge.svg
-[codecov-url]: https://codecov.io/gh/eternallycyf/ims-template/branch/master
+[coverage]: https://codecov.io/gh/eternallycyf/ims-gantt-timeline-calendar/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/eternallycyf/ims-gantt-timeline-calendar/branch/master
 
 <!-- Github CI -->
 
-[test-ci]: https://github.com/eternallycyf/ims-template/workflows/Test%20CI/badge.svg
-[release-ci]: https://github.com/eternallycyf/ims-template/workflows/Release%20CI/badge.svg
-[test-ci-url]: https://github.com/eternallycyf/ims-template/actions?query=workflow%3ATest%20CI
-[release-ci-url]: https://github.com/eternallycyf/ims-template/actions?query=workflow%3ARelease%20CI
-[download-image]: https://img.shields.io/npm/dm/ims-template.svg?style=flat-square
-[download-url]: https://npmjs.org/package/ims-template
+[test-ci]: https://github.com/eternallycyf/ims-gantt-timeline-calendar/workflows/Test%20CI/badge.svg
+[release-ci]: https://github.com/eternallycyf/ims-gantt-timeline-calendar/workflows/Release%20CI/badge.svg
+[test-ci-url]: https://github.com/eternallycyf/ims-gantt-timeline-calendar/actions?query=workflow%3ATest%20CI
+[release-ci-url]: https://github.com/eternallycyf/ims-gantt-timeline-calendar/actions?query=workflow%3ARelease%20CI
+[download-image]: https://img.shields.io/npm/dm/ims-gantt-timeline-calendar.svg?style=flat-square
+[download-url]: https://npmjs.org/package/ims-gantt-timeline-calendar
 
 </div>
 
 ## 简介
 
-这是一个开发 npm 项目的模板，具有以下特点：
-
-- 🏗️ **基于 father4 的构建工具**：本项目采用了基于 father4 的构建工具，可以更高效地构建项目，提高开发效率；
-- 📖 **基于 dumi2 的文档工具**：本项目采用了基于 dumi2 的文档工具，可以更方便地编写和管理文档，提高文档的可读性和可维护性；
-- 🚀 **基于 vercel 自动化触发文档站构建**：本项目使用 vercel 自动化触发文档站构建，可以更快地更新文档站，提高用户的使用体验；
-- 📦 **基于 semantic-release 实现 npm 包的自动化发布**：本项目使用 semantic-release 实现 npm 包的自动化发布，可以更方便地管理和发布 npm 包，提高开发效率。
+a react gantt timeline calendar
 
 ## 快速上手
 
@@ -75,7 +68,7 @@ node 版本 v18.13.0
 推荐使用 `pnpm` 安装
 
 ```bash
-pnpm i ims-template -S
+pnpm i ims-gantt-timeline-calendar -S
 ```
 
 ### 使用
@@ -117,20 +110,20 @@ This project is [MIT](./LICENSE) licensed.
 
 <!-- contributors -->
 
-[contributors-shield]: https://img.shields.io/github/contributors/eternallycyf/ims-template.svg?style=flat
-[contributors-url]: https://github.com/eternallycyf/ims-template/graphs/contributors
+[contributors-shield]: https://img.shields.io/github/contributors/eternallycyf/ims-gantt-timeline-calendar.svg?style=flat
+[contributors-url]: https://github.com/eternallycyf/ims-gantt-timeline-calendar/graphs/contributors
 
 <!-- forks -->
 
-[forks-shield]: https://img.shields.io/github/forks/eternallycyf/ims-template.svg?style=flat
-[forks-url]: https://github.com/eternallycyf/ims-template/network/members
+[forks-shield]: https://img.shields.io/github/forks/eternallycyf/ims-gantt-timeline-calendar.svg?style=flat
+[forks-url]: https://github.com/eternallycyf/ims-gantt-timeline-calendar/network/members
 
 <!-- stargazers -->
 
-[stargazers-shield]: https://img.shields.io/github/stars/eternallycyf/ims-template.svg?style=flat
-[stargazers-url]: https://github.com/eternallycyf/ims-template/stargazers
+[stargazers-shield]: https://img.shields.io/github/stars/eternallycyf/ims-gantt-timeline-calendar.svg?style=flat
+[stargazers-url]: https://github.com/eternallycyf/ims-gantt-timeline-calendar/stargazers
 
 <!-- issues -->
 
-[issues-shield]: https://img.shields.io/github/issues/eternallycyf/ims-template.svg?style=flat
-[issues-url]: https://github.com/eternallycyf/ims-template/issues/new/choose
+[issues-shield]: https://img.shields.io/github/issues/eternallycyf/ims-gantt-timeline-calendar.svg?style=flat
+[issues-url]: https://github.com/eternallycyf/ims-gantt-timeline-calendar/issues/new/choose

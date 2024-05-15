@@ -10,7 +10,7 @@ apiHeader: false
 ## 使用方式
 
 ```shell
-pnpm i 'ims-template'
+pnpm i 'ims-gantt-timeline-calendar'
 ```
 
 ## peerDependencies

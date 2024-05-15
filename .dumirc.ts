@@ -2,7 +2,6 @@ import { defineConfig } from 'dumi';
 import type { SiteThemeConfig } from 'dumi-theme-antd-style';
 import { footer } from 'ims-template-config';
 import path from 'path';
-import { featuresZh } from './config/features';
 import style from './docs/siteIndexStyle';
 import { homepage, name as repo } from './package.json';
 
@@ -28,7 +27,6 @@ const themeConfig: SiteThemeConfig = {
           openExternal: true,
         },
       ],
-      features: featuresZh,
     },
     'en-US': {
       description: 'dumi2 theme similar to antd v5 website',
@@ -47,10 +45,10 @@ const themeConfig: SiteThemeConfig = {
   },
   socialLinks: { github: homepage },
   apiHeader: {
-    sourceUrl: `https://github.com/eternallycyf/ims-template/tree/master/src/components/{atomId}/index.tsx`,
-    docUrl: `https://github.com/eternallycyf/ims-template/tree/master/src/components/{atomId}/index.md`,
-    pkg: 'ims-template',
-    match: ['/ims-template/src/component'],
+    sourceUrl: `https://github.com/eternallycyf/ims-gantt-timeline-calendar/tree/master/src/components/{atomId}/index.tsx`,
+    docUrl: `https://github.com/eternallycyf/ims-gantt-timeline-calendar/tree/master/src/components/{atomId}/index.md`,
+    pkg: 'ims-gantt-timeline-calendar',
+    match: ['/ims-gantt-timeline-calendar/src/component'],
   },
   footerConfig: {
     bottom: '2023',

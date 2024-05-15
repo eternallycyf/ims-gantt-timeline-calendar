@@ -21,8 +21,8 @@
     "paths": {
       "@@/*": [".dumi/tmp/*"],
       "@/*": ["./src"],
-      "ims-template": ["./src"],
-      "ims-template/*": ["./src/*"]
+      "ims-gantt-timeline-calendar": ["./src"],
+      "ims-gantt-timeline-calendar/*": ["./src/*"]
     }
   },
   "exclude": ["node_modules", "dist", "server"]
