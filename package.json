@@ -67,9 +67,6 @@
       "prettier --parser=typescript --write"
     ]
   },
-  "resolutions": {
-    "dumi": "~2.2.17"
-  },
   "dependencies": {
     "@babel/runtime": "^7.23.1",
     "react": "^18.2.0",
@@ -95,8 +92,8 @@
     "concurrently": "^7",
     "conventional-changelog-gitmoji-config": "^1",
     "cross-env": "^7",
-    "dumi": "~2.2.17",
-    "dumi-theme-antd-style": "^0.31.0",
+    "dumi": "latest",
+    "dumi-theme-antd-style": "latest",
     "eslint": "^8",
     "father": "^4",
     "husky": "^8",
