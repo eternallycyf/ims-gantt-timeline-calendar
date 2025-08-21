@@ -83,7 +83,7 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@umijs/lint": "^4",
-    "@vitest/coverage-v8": "latest",
+    "@vitest/coverage-v8": "^1.x",
     "antd": "^5.9.4",
     "babel-plugin-add-module-exports": "^1",
     "babel-plugin-antd-style": "^1.0.4",
@@ -110,7 +110,7 @@
     "semantic-release-config-gitmoji": "^1",
     "stylelint": "^15",
     "typescript": "^5",
-    "vitest": "latest"
+    "vitest": "^1.x",
   },
   "peerDependencies": {
     "@ant-design/icons": "^5.2.6",
