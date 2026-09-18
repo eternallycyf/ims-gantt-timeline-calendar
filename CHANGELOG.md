@@ -1,5 +1,32 @@
 # Changelog
 
+### [Version&nbsp;1.2.1](https://github.com/eternallycyf/ims-gantt-timeline-calendar/compare/v1.2.0...v1.2.1)
+
+<sup>Released on **2026-09-18**</sup>
+
+#### 🐛 修复
+
+- 修复问题.
+
+#### 📝 文档
+
+- Update doc.
+
+<br/>
+
+<details>
+<summary><kbd>Improvements and Fixes</kbd></summary>
+
+#### What's fixed
+
+- 修复问题 ([f5cf389](https://github.com/eternallycyf/ims-gantt-timeline-calendar/commit/f5cf389))
+
+#### Documentation
+
+- Update doc ([472499a](https://github.com/eternallycyf/ims-gantt-timeline-calendar/commit/472499a))
+
+</details>
+
 ## [Version&nbsp;1.2.0](https://github.com/eternallycyf/ims-gantt-timeline-calendar/compare/v1.1.0...v1.2.0)
 
 <sup>Released on **2026-09-18**</sup>
