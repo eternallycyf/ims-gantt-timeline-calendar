@@ -42,3 +42,4 @@ screenshot
 example/.temp/*
 .eslintcache
 techUI*
+.tmp-gantt-demo

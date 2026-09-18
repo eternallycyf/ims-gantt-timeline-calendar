@@ -57,7 +57,7 @@ node 版本 v18.13.0
 
 ## 简介
 
-a react gantt timeline calendar
+基于 zrender Canvas 的 React 甘特 / Timeline 组件，交互对齐飞书甘特图与 Notion Timeline（实现思路见 [掘金文章](https://juejin.cn/post/7321049411852599346)）。
 
 ## 快速上手
 
@@ -71,7 +71,33 @@ pnpm i ims-gantt-timeline-calendar -S
 
 ### 使用
 
-详情：[CHANGELOG](./CHANGELOG.md)
+```tsx
+import { useRef } from 'react';
+import { TimeLine, getRandomColor } from 'ims-gantt-timeline-calendar';
+import type { TimeLineRef } from 'ims-gantt-timeline-calendar';
+
+const tasks = [
+  { name: 'Task 1', start: 0, duration: 3, resource: 'John', fillColor: getRandomColor() },
+  {},
+];
+
+export default () => {
+  const ref = useRef<TimeLineRef>(null);
+  return (
+    <TimeLine
+      ref={ref}
+      tasks={tasks}
+      height={480}
+      config={{ unitWidth: 120, showArrow: true }}
+      onDataChange={(p) => console.log(p.reason, p.tasks)}
+    />
+  );
+};
+```
+
+支持：任务拖拽 / 拉伸、里程碑 🚩、今日线、休息日斜线、横向滚动、week/month 视图、视口外箭头定位、双击编辑与右键菜单。
+
+详情见文档站点与 [CHANGELOG](./CHANGELOG.md)。
 
 ## 🤝 Contributing
 

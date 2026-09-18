@@ -1,246 +1,288 @@
-import { FC, useEffect } from 'react';
-import { useLocation } from 'react-use';
-import * as zrender from 'zrender';
-import { div } from 'zrender/lib/core/vector';
+import { Form, Input, Menu, Modal, message } from 'antd';
+import type { MenuProps } from 'antd';
+import { CopyOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { applyGanttConfig } from './core/config';
+import { initGantt } from './core/gantt';
+import { setLocale, t } from './core/i18n';
+import './core/gantt.css';
 import './index.less';
-import type { TimeLineProps } from './interface';
-import { useSearchParams, useSearchParamsActions } from './store/useGanttChartStore';
-import { getRandomColor } from './utils';
-import { hachureLines } from './utils/hachure';
-import { isHoliday } from './utils/holidays';
-import { getRealDuration } from './utils/task';
+import type { GanttTask, TimeLineProps } from './interface';
 
-const TimeLine: FC<TimeLineProps> = (props) => {
-  const { tasks = [] } = props;
-  const { refreshSearchParamsStore } = useSearchParamsActions();
+export interface TimeLineRef {
+  resetScroll: () => void;
+  clearTasks: () => void;
+  clearMilestones: () => void;
+  copyTask: (index: number) => void;
+  deleteTask: (index: number) => void;
+  updateTask: (index: number, values: Partial<GanttTask>) => void;
+  addTaskAt: (pos: { posX: number; posY: number }, values: Partial<GanttTask>) => void;
+  addTasks: (tasks: GanttTask[]) => void;
+  redraw: () => void;
+  getCategories: () => string[];
+  getCategoryColors: () => Record<string, string>;
+  destroy: () => void;
+}
+
+const TimeLine = forwardRef<TimeLineRef, TimeLineProps>((props, ref) => {
   const {
-    initChartStartX,
-    initChartStartY,
-    timeScaleHeight,
-    milestoneTopHeight,
-    unitWidth,
-    barHeight,
-    barMargin,
-    halfUnitWidth,
-    taskNamePaddingLeft,
-  } = useSearchParams();
+    tasks,
+    mileStones,
+    config,
+    height = 420,
+    style,
+    className,
+    locale = 'zh',
+    onEditTask,
+    onContextMenu,
+    onHideContextMenu,
+    onCreateTask,
+    onDataChange,
+    onScrollXChange,
+    toolbar,
+  } = props;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const apiRef = useRef<any>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    open: boolean;
+    index: number;
+    x: number;
+    y: number;
+  }>({ open: false, index: -1, x: 0, y: 0 });
+  const [editState, setEditState] = useState<{ open: boolean; index: number; task?: GanttTask }>({
+    open: false,
+    index: -1,
+  });
+  const [createState, setCreateState] = useState<{
+    open: boolean;
+    posX: number;
+    posY: number;
+  }>({ open: false, posX: 0, posY: 0 });
+  const [form] = Form.useForm();
+  const [createForm] = Form.useForm();
+
+  const hideMenu = useCallback(() => {
+    setContextMenu((prev) => ({ ...prev, open: false }));
+    onHideContextMenu?.();
+  }, [onHideContextMenu]);
 
   useEffect(() => {
-    refreshSearchParamsStore();
-  }, [location]);
+    setLocale(locale);
+  }, [locale]);
 
-  const handleInitTimeLine = () => {
-    let container = document.getElementById('TimeLine');
-    let zr = zrender.init(container);
-    // margin left to the container
-    const chartStartX = initChartStartX;
-    // margin top to the container
-    const chartStartY = Math.max(initChartStartY, timeScaleHeight + milestoneTopHeight);
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-    // 1. 拿到画布的宽
-    const canvasWidth = zr.getWidth()!;
-    const canvasHeight = zr.getHeight();
-    // 2. 计算需要画多少格
-    const timeScaleWidth = Math.ceil(canvasWidth / unitWidth);
-
-    // 3. 画时间轴的矩形，设置位置x,y,长宽，给一个背景色填充
-    const timeScale = new zrender.Rect({
-      shape: {
-        x: chartStartX,
-        y: chartStartY - timeScaleHeight,
-        width: timeScaleWidth * unitWidth,
-        height: timeScaleHeight,
-      },
-      style: {
-        fill: 'rgba(255, 0,0, .2)',
-      },
-    });
-    zr.add(timeScale);
-
-    const lastScrollX = 0;
-    const gridStartX = chartStartX;
-    const gridEndX = timeScaleWidth * unitWidth;
-    const gridLineCount = timeScaleWidth + 1;
-    const deltaScrollX = Math.floor(lastScrollX / unitWidth);
-
-    // 3. 遍历要画的线的个数
-    for (let i = 0 + deltaScrollX, count = 0; count < gridLineCount; i++, count++) {
-      const gridX = gridStartX + i * unitWidth;
-      // 4. 画一根线，从（x1, y1） -> (x2, y2)
-      const gridLine = new zrender.Line({
-        shape: {
-          x1: gridX,
-          y1: chartStartY - timeScaleHeight,
-          x2: gridX,
-          y2: chartStartY + (barHeight + barMargin) * tasks.length,
-        },
-        style: {
-          stroke: 'lightgray',
-        },
-      });
-      // 1. 线比格子多1，所以要提前1步退出
-      if (count < gridLineCount - 1) {
-        // MARK: 同一个遍历画「休息日斜线」
-        const now = +new Date('2024-01-01');
-        const currentDate = now + i * 60 * 1000 * 60 * 24;
-        const dateInfo = isHoliday(currentDate);
-        // 是休息日的话画斜线
-        if (dateInfo.isHoliday) {
-          try {
-            // 返回要画的线的开始、结束坐标
-            const lines = hachureLines(
-              [
-                [chartStartX + i * unitWidth, chartStartY],
-                [chartStartX + i * unitWidth + unitWidth, chartStartY],
-                [
-                  chartStartX + i * unitWidth + unitWidth,
-                  chartStartY + (barHeight + barMargin) * tasks.length,
-                ],
-                [chartStartX + i * unitWidth, chartStartY + (barHeight + barMargin) * tasks.length],
-              ],
-              10,
-              45,
-            );
-            // 用zrender画线段，描边上色
-            lines.forEach((line) => {
-              const [x1, y1] = line[0];
-              const [x2, y2] = line[1];
-              const l = new zrender.Line({
-                shape: {
-                  x1,
-                  y1,
-                  x2,
-                  y2,
-                },
-                style: {
-                  stroke: 'rgba(221, 221, 221, 0.7)',
-                },
-              });
-              zr.add(l);
-            });
-          } catch (error) {
-            console.log(error);
-          }
+    applyGanttConfig(config || {});
+    const api = initGantt({
+      container: containerRef.current,
+      initialTasks: tasks,
+      initialMileStones: mileStones,
+      onScrollXChange,
+      onDataChange,
+      onHideContextMenu: hideMenu,
+      onEditTask: (payload: { index: number; task: GanttTask }) => {
+        if (onEditTask) {
+          onEditTask(payload);
+          return;
         }
-
-        // 2. 画基本文本，可以直接改成日期名字，这里直接写遍历的index
-        const dateText = new zrender.Text({
-          style: {
-            // text: i,
-            text: dateInfo.dateString,
-            x: gridX,
-            y: chartStartY - timeScaleHeight,
-          },
-          z: 1,
+        setEditState({ open: true, index: payload.index, task: payload.task });
+        form.setFieldsValue({
+          name: payload.task?.name,
+          resource: payload.task?.resource,
+          category: payload.task?.category,
+          fillColor: payload.task?.fillColor,
         });
-        // 3. 为了居中，要算出文本的宽高
-        const { width, height } = dateText.getBoundingRect();
-        // 4. 重新设置日期文本位置，居中
-        dateText.attr({
-          style: {
-            x: gridX - width / 2 + halfUnitWidth,
-            y: chartStartY - timeScaleHeight - height / 2 + timeScaleHeight / 2,
-          },
+      },
+      onContextMenu: (payload: { index: number; x: number; y: number }) => {
+        if (onContextMenu) {
+          onContextMenu(payload);
+          return;
+        }
+        setContextMenu({
+          open: true,
+          index: payload.index,
+          x: payload.x,
+          y: payload.y,
         });
-        // 5. 加到zrender实例中
-        zr.add(dateText);
-      }
-
-      zr.add(gridLine);
-    }
-
-    // 1. 遍历tasks数组
-    tasks.forEach(function (task, index) {
-      // 2. 因为有最后一行是空行，没有任务，用来创建新任务，轮空不画
-      if (!task?.name) return;
-      // 3. 计算任务的绘制位置和矩形宽高
-      const x = chartStartX + task.start * unitWidth;
-      const y = chartStartY + (barHeight + barMargin) * index;
-      const width = task.duration * unitWidth;
-      const taskBarRect = {
-        width,
-        height: barHeight,
-      };
-      // 4. 建一个组，设置可以拖拽 （感谢这个属性，后续交互省了很多力气，还可以设置只能垂直或者水平拖动）
-      const group = new zrender.Group({
-        x,
-        y,
-        draggable: true, // Enable draggable for the group
-        // draggable: "horizontal", // Enable draggable for the group
-      });
-      // 5. 创建任务跨度矩形
-      const rect = new zrender.Rect({
-        shape: {
-          x: 0,
-          y: 0,
-          width: width,
-          height: barHeight,
-          r: 6,
-        },
-        style: {
-          fill: task.fillColor,
-        },
-        cursor: 'move',
-      });
-      // 6. 加到组里
-      group.add(rect);
-
-      // Create a text shape for task name
-      const taskName = new zrender.Text({
-        style: {
-          text: task.name,
-          x: taskNamePaddingLeft,
-          y: barHeight / 2 - 12 / 2,
-          textFill: 'white',
-          textAlign: 'left',
-          textVerticalAlign: 'middle',
-          fill: 'white',
-        } as any,
-        cursor: 'move',
-      });
-      group.add(taskName);
-      // Create a text shape for resource assignment
-      const resourceText = new zrender.Text({
-        style: {
-          text: 'Assigned to: ' + task.resource,
-          x: 0 + width + 5,
-          y: barHeight / 2 + 0 - 12 / 2,
-          textFill: 'black',
-        } as any,
-        cursor: 'normal',
-      });
-      group.add(resourceText);
-      const taskDurationText = new zrender.Text({
-        style: {
-          text: `${getRealDuration(task, false)}天`,
-          x: width - taskNamePaddingLeft,
-          y: barHeight / 2 - 12 / 2,
-          textFill: 'white',
-          textAlign: 'left',
-          textVerticalAlign: 'middle',
-          fill: 'white',
-        } as any,
-        cursor: 'move',
-      });
-      const { width: taskDurationTextWidth } = taskDurationText.getBoundingRect();
-      taskDurationText.attr({
-        style: {
-          x: width - taskDurationTextWidth - taskNamePaddingLeft,
-        },
-      });
-      group.add(taskDurationText);
-
-      zr.add(group);
+      },
+      onCreateTask: (payload: { posX: number; posY: number }) => {
+        if (onCreateTask) {
+          onCreateTask(payload);
+          return;
+        }
+        setCreateState({ open: true, posX: payload.posX, posY: payload.posY });
+        createForm.resetFields();
+      },
     });
-  };
 
-  useEffect(handleInitTimeLine, []);
+    apiRef.current = api;
+
+    return () => {
+      api.destroy();
+      apiRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!apiRef.current || !config) return;
+    applyGanttConfig(config);
+    apiRef.current.redraw();
+  }, [config]);
+
+  useImperativeHandle(ref, () => ({
+    resetScroll: () => apiRef.current?.resetScroll(),
+    clearTasks: () => apiRef.current?.clearTasks(),
+    clearMilestones: () => apiRef.current?.clearMilestones(),
+    copyTask: (index) => apiRef.current?.copyTask(index),
+    deleteTask: (index) => apiRef.current?.deleteTask(index),
+    updateTask: (index, values) => apiRef.current?.updateTask(index, values),
+    addTaskAt: (pos, values) => apiRef.current?.addTaskAt(pos, values),
+    addTasks: (list) => apiRef.current?.addTasks(list),
+    redraw: () => apiRef.current?.redraw(),
+    getCategories: () => apiRef.current?.getCategories() || [],
+    getCategoryColors: () => apiRef.current?.getCategoryColors() || {},
+    destroy: () => apiRef.current?.destroy(),
+  }));
+
+  const menuItems: MenuProps['items'] = useMemo(
+    () => [
+      {
+        key: 'edit',
+        icon: <EditOutlined />,
+        label: '编辑',
+        onClick: () => {
+          const task = (window as any).tasks?.[contextMenu.index];
+          setEditState({ open: true, index: contextMenu.index, task });
+          form.setFieldsValue({
+            name: task?.name,
+            resource: task?.resource,
+            category: task?.category,
+            fillColor: task?.fillColor,
+          });
+          hideMenu();
+        },
+      },
+      {
+        key: 'copy',
+        icon: <CopyOutlined />,
+        label: t('menu.copyTask'),
+        onClick: () => {
+          apiRef.current?.copyTask(contextMenu.index);
+          hideMenu();
+        },
+      },
+      {
+        key: 'delete',
+        icon: <DeleteOutlined />,
+        danger: true,
+        label: t('menu.deleteTask'),
+        onClick: () => {
+          Modal.confirm({
+            title: t('contextMenu.deleteConfirm'),
+            onOk: () => {
+              apiRef.current?.deleteTask(contextMenu.index);
+              hideMenu();
+            },
+          });
+        },
+      },
+    ],
+    [contextMenu.index, form, hideMenu],
+  );
 
   return (
-    <div style={{ width: '100%', height: '100%', overflow: 'scroll' }}>
-      <div id="TimeLine" style={{ width: 5000, height: 250, overflow: 'scroll' }}></div>
+    <div className={['ims-gantt-timeline', className].filter(Boolean).join(' ')} style={style}>
+      {toolbar}
+      {contextMenu.open ? (
+        <div
+          style={{
+            position: 'fixed',
+            left: contextMenu.x,
+            top: contextMenu.y,
+            zIndex: 1100,
+            boxShadow: '0 6px 16px rgba(0,0,0,0.08)',
+            background: '#fff',
+            borderRadius: 8,
+          }}
+        >
+          <Menu items={menuItems} style={{ border: 'none' }} />
+        </div>
+      ) : null}
+      <div
+        ref={containerRef}
+        className="ims-gantt-timeline__canvas"
+        style={{ width: '100%', height, outline: '1px solid #e5e7eb' }}
+      />
+
+      <Modal
+        title={t('modal.editTitle')}
+        open={editState.open}
+        onCancel={() => setEditState({ open: false, index: -1 })}
+        onOk={async () => {
+          const values = await form.validateFields();
+          apiRef.current?.updateTask(editState.index, values);
+          setEditState({ open: false, index: -1 });
+          message.success('已保存');
+        }}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="name" label="任务名" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="resource" label="负责人">
+            <Input />
+          </Form.Item>
+          <Form.Item name="category" label="分类">
+            <Input />
+          </Form.Item>
+          <Form.Item name="fillColor" label="颜色">
+            <Input type="color" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title={t('modal.addTitle', { date: String(createState.posX) })}
+        open={createState.open}
+        onCancel={() => setCreateState({ open: false, posX: 0, posY: 0 })}
+        onOk={async () => {
+          const values = await createForm.validateFields();
+          apiRef.current?.addTaskAt(
+            { posX: createState.posX, posY: createState.posY },
+            values,
+          );
+          setCreateState({ open: false, posX: 0, posY: 0 });
+        }}
+        destroyOnClose
+      >
+        <Form form={createForm} layout="vertical">
+          <Form.Item name="name" label="任务名" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="resource" label="负责人">
+            <Input />
+          </Form.Item>
+          <Form.Item name="category" label="分类">
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
-};
+});
+
+TimeLine.displayName = 'TimeLine';
 
 export default TimeLine;
