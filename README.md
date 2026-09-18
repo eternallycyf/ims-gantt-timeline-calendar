@@ -8,7 +8,7 @@
 
 <h1>ims-gantt-timeline-calendar</h1>
 
-node 版本 v18.13.0
+node 版本 24.x（Vercel 文档站构建）
 
 [Changelog](./CHANGELOG.md) · [Report Bug][issues-url] · [Request Feature][issues-url]
 
