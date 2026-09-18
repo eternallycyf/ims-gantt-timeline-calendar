@@ -8,7 +8,7 @@ demo:
   cols: 1
 ---
 
-基于 [zrender](https://ecomfe.github.io/zrender-doc/public/) Canvas 实现的甘特 / Timeline，交互参考飞书甘特图与 Notion Timeline（参见[掘金原文](https://juejin.cn/post/7321049411852599346)）。
+基于 [zrender](https://ecomfe.github.io/zrender-doc/public/) Canvas 实现的甘特 / Timeline，交互参考飞书甘特图与 Notion Timeline。
 
 ## 功能
 

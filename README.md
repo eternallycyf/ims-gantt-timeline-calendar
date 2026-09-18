@@ -57,7 +57,7 @@ node 版本 24.x（Vercel 文档站构建）
 
 ## 简介
 
-基于 zrender Canvas 的 React 甘特 / Timeline 组件，交互对齐飞书甘特图与 Notion Timeline（实现思路见 [掘金文章](https://juejin.cn/post/7321049411852599346)）。
+基于 zrender Canvas 的 React 甘特 / Timeline 组件，交互对齐飞书甘特图与 Notion Timeline。
 
 ## 快速上手
 
