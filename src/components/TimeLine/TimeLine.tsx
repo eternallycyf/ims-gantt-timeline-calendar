@@ -80,55 +80,78 @@ const TimeLine = forwardRef<TimeLineRef, TimeLineProps>((props, ref) => {
   }, [locale]);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    applyGanttConfig(config || {});
-    const api = initGantt({
-      container: containerRef.current,
-      initialTasks: tasks,
-      initialMileStones: mileStones,
-      onScrollXChange,
-      onDataChange,
-      onHideContextMenu: hideMenu,
-      onEditTask: (payload: { index: number; task: GanttTask }) => {
-        if (onEditTask) {
-          onEditTask(payload);
-          return;
-        }
-        setEditState({ open: true, index: payload.index, task: payload.task });
-        form.setFieldsValue({
-          name: payload.task?.name,
-          resource: payload.task?.resource,
-          category: payload.task?.category,
-          fillColor: payload.task?.fillColor,
-        });
-      },
-      onContextMenu: (payload: { index: number; x: number; y: number }) => {
-        if (onContextMenu) {
-          onContextMenu(payload);
-          return;
-        }
-        setContextMenu({
-          open: true,
-          index: payload.index,
-          x: payload.x,
-          y: payload.y,
-        });
-      },
-      onCreateTask: (payload: { posX: number; posY: number }) => {
-        if (onCreateTask) {
-          onCreateTask(payload);
-          return;
-        }
-        setCreateState({ open: true, posX: payload.posX, posY: payload.posY });
-        createForm.resetFields();
-      },
-    });
+    let disposed = false;
+    let resizeObserver: ResizeObserver | null = null;
 
-    apiRef.current = api;
+    const mount = () => {
+      if (disposed || apiRef.current) return;
+      if (!container.clientWidth || !container.clientHeight) return;
+
+      applyGanttConfig(config || {});
+      const api = initGantt({
+        container,
+        initialTasks: tasks,
+        initialMileStones: mileStones,
+        onScrollXChange,
+        onDataChange,
+        onHideContextMenu: hideMenu,
+        onEditTask: (payload: { index: number; task: GanttTask }) => {
+          if (onEditTask) {
+            onEditTask(payload);
+            return;
+          }
+          setEditState({ open: true, index: payload.index, task: payload.task });
+          form.setFieldsValue({
+            name: payload.task?.name,
+            resource: payload.task?.resource,
+            category: payload.task?.category,
+            fillColor: payload.task?.fillColor,
+          });
+        },
+        onContextMenu: (payload: { index: number; x: number; y: number }) => {
+          if (onContextMenu) {
+            onContextMenu(payload);
+            return;
+          }
+          setContextMenu({
+            open: true,
+            index: payload.index,
+            x: payload.x,
+            y: payload.y,
+          });
+        },
+        onCreateTask: (payload: { posX: number; posY: number }) => {
+          if (onCreateTask) {
+            onCreateTask(payload);
+            return;
+          }
+          setCreateState({ open: true, posX: payload.posX, posY: payload.posY });
+          createForm.resetFields();
+        },
+      });
+
+      apiRef.current = api;
+    };
+
+    mount();
+    if (!apiRef.current && typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        mount();
+        if (apiRef.current) {
+          resizeObserver?.disconnect();
+          resizeObserver = null;
+        }
+      });
+      resizeObserver.observe(container);
+    }
 
     return () => {
-      api.destroy();
+      disposed = true;
+      resizeObserver?.disconnect();
+      apiRef.current?.destroy();
       apiRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

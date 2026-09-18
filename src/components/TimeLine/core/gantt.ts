@@ -236,12 +236,18 @@ export function initGantt({
   }
 
   const resizeHandler = function () {
-    zr.resize()
+    const nextWidth = container.clientWidth
+    const nextHeight = container.clientHeight
+    // skip empty layout (e.g. demo mount before parent width settles)
+    if (!nextWidth || !nextHeight) return
+    zr.resize({ width: nextWidth, height: nextHeight })
     redrawChart(true)
   }
 
   // redraw when browser window size change
   window.addEventListener('resize', resizeHandler)
+
+  let resizeObserver = null
 
   let isFirstFlag = true
   function redrawChart(clear = false, scrollX = lastScrollX, scrollY = 0) {
@@ -1091,6 +1097,21 @@ export function initGantt({
 
   notifyScrollX()
 
+  // dumi / flex parents often change size without a window resize
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(() => {
+      resizeHandler()
+    })
+    resizeObserver.observe(container)
+  }
+
+  // layout may not be ready in the same frame as mount
+  if (typeof requestAnimationFrame !== 'undefined') {
+    requestAnimationFrame(() => {
+      resizeHandler()
+    })
+  }
+
   const api = {
     resetScroll() {
       lastScrollX = initLastScrollX
@@ -1228,6 +1249,8 @@ export function initGantt({
     },
     destroy() {
       window.removeEventListener('resize', resizeHandler)
+      resizeObserver?.disconnect()
+      resizeObserver = null
       zr.dispose()
     }
   }
